@@ -1,69 +1,93 @@
 <?php
-//se crea la clase nodo que representa cada elemento de la lista
+// Clase Nodo
 class Nodo {
-    // cada nodo tiene tres atributos: el dato, el siguiente y el anterior
-    public $dato;         // guarda el valor  o info del nodo (ej "1", "2", "3")
-    public $siguiente;    // apunta al nodo que viene después
-    public $anterior;     // apunta al nodo que viene antes
+    public $dato;       // Guarda el valor o información del nodo
+    public $siguiente;  // Guarda la referencia (enlace) al siguiente nodo
 
-    // coolcamos un constructor que se ejecuta al crear un nuevo nodo
-    function __construct($datoRecibido) { 
-        $this->dato = $datoRecibido;  // guarda el valor que recibe como argumento
+    // Constructor: se ejecuta al crear un nuevo nodo
+    public function __construct($dato) {
+        $this->dato = $dato;         // Asigna el valor al nodo
+        $this->siguiente = null;     // Por defecto, no apunta a ningún otro nodo
     }
 }
 
-// clase ListaDoble: maneja la lista completa 
-class ListaDoble {
-    // declara los punteros al primer y último nodo de la lista
-    private $nodoCabeza = null;  // Primer nodo de la lista //al principio están vacíos (null), porque la lista no tiene elementos.
-    private $nodoCola = null;    // Último nodo de la lista
 
-    // crea un método para insertar un nuevo nodo al final de la lista.
-    function agregar($nuevoDato) {
-        $nuevoNodo = new Nodo($nuevoDato); // Se crea un nuevo nodo con el dato recibido
+// Clase ListaSimple
 
-        // verifica si la lista está vacía (no tiene cabeza)
-        if ($this->nodoCabeza == null) {
-            // si esta vacia el nuevo nodo será tanto cabeza como cola
-            $this->nodoCabeza = $nuevoNodo; //la cabeza es igual a toda la cola pq es solo un dato
-            $this->nodoCola = $nuevoNodo;
+class ListaSimple {
+    private $cabeza; // Apunta al primer nodo de la lista
+
+    // Constructor: al crear la lista, empieza vacía
+    public function __construct() {
+        $this->cabeza = null;
+    }
+
+    // Método para insertar un nuevo dato al final de la lista
+    public function insertar($dato) {
+        $nuevo = new Nodo($dato); // Se crea un nuevo nodo con el dato dado
+
+        // Si la lista está vacía, el nuevo nodo será la cabeza
+        if ($this->cabeza === null) {
+            $this->cabeza = $nuevo;
         } else {
-            // si ya hay elementos, se conecta el nuevo nodo al final
-            $nuevoNodo->anterior = $this->nodoCola;   // El nuevo apunta al nodo anterior (la antigua cola)
-            $this->nodoCola->siguiente = $nuevoNodo;  // La cola actual apunta hacia el nuevo nodo
-            $this->nodoCola = $nuevoNodo;             // Ahora el nuevo nodo pasa a ser la cola
+            // Si ya hay nodos, se recorre hasta el último
+            $actual = $this->cabeza;
+            while ($actual->siguiente !== null) {
+                $actual = $actual->siguiente; // Avanza al siguiente nodo
+            }
+            // Cuando se llega al final, se enlaza el nuevo nodo
+            $actual->siguiente = $nuevo;
         }
     }
 
-   //mostrar en la consola los elementos desde la cabeza hasta la cola
-    function mostrarAdelante() {
-        // empiza a recorrer la lista,el nodo actual sigue recorreindo hasta el final de los datos
-        for ($nodoActual = $this->nodoCabeza; $nodoActual; $nodoActual = $nodoActual->siguiente)
-            echo $nodoActual->dato . " → ";  // Muestra el dato y una flecha hacia adelante
-        echo "null\n";                       // Indica el final de la lista
+    // Método para mostrar el contenido de la lista
+    public function mostrar() {
+        if ($this->cabeza == null) {
+        echo "La lista está vacía\n";
+        return;
+    }
+        $actual = $this->cabeza; // Empieza desde el primer nodo
+        // Mientras haya un nodo existente
+        while ($actual !== null) {
+            echo $actual->dato . " -> "; // Imprime el dato del nodo
+            $actual = $actual->siguiente; // Avanza al siguiente nodo
+        }
+        echo "NULL\n"; // Indica el final de la lista
     }
 
-   //mostrar los elementos desde la cola hasta la cabeza
-    function mostrarAtras() {
-        // Empieza desde la cola y retrocede hasta el inicio
-        for ($nodoActual = $this->nodoCola; $nodoActual; $nodoActual = $nodoActual->anterior)
-            echo $nodoActual->dato . " ← ";  // Muestra el dato y una flecha hacia atrás
-        echo "null\n";                       // Indica el inicio de la lista
+    // Método para eliminar un nodo que contenga un dato específico
+    public function eliminar($dato) {
+        // Si la lista está vacía, no hace nada
+        if ($this->cabeza === null) return;
+        // Si el dato a eliminar está en el primer nodo (la cabeza)
+        if ($this->cabeza->dato === $dato) {
+            // La cabeza ahora apunta al siguiente nodo (se elimina el primero)
+            $this->cabeza = $this->cabeza->siguiente;
+            return;
+        }
+        // Si el dato no está en la cabeza, se busca en el resto
+        $actual = $this->cabeza;
+        while ($actual->siguiente !== null && $actual->siguiente->dato !== $dato) {
+            $actual = $actual->siguiente; // Avanza hasta encontrar el nodo anterior al que se eliminará
+        }
+        // Si se encontró el nodo con el dato, se salta ese enlace
+        if ($actual->siguiente !== null) { //Aun no estamos al final
+            $actual->siguiente = $actual->siguiente->siguiente; //
+        }
     }
 }
-
-//  ejemplo de uso de la lista doblemente enlazada
-$listaDoble = new ListaDoble();  // Se crea una nueva lista vacía
-
-// se agregan tres nodos con los valores 1, 2 y 3
-$listaDoble->agregar(1);
-$listaDoble->agregar(2);
-$listaDoble->agregar(3);
-
-// mostrar recorrido desde el primero hasta el último
-echo "Recorrido hacia adelante:\n"; 
-$listaDoble->mostrarAdelante();
-// mostrar recorrido desde el último hasta el primero
-echo "\nRecorrido hacia atrás:\n"; 
-$listaDoble->mostrarAtras();
+// Ejemplo de uso de la lista
+$lista = new ListaSimple(); // Se crea una nueva lista vacía
+// Insertar algunos datos
+$lista->insertar("A");
+$lista->insertar("B");
+$lista->insertar("C");
+// Mostrar la lista actual
+echo "Lista actual:\n";
+$lista->mostrar();  // Muestra: A -> B -> C -> NULL
+// Eliminar un elemento específico
+echo "\nEliminando C...\n";
+$lista->eliminar("C");
+// Mostrar la lista después de eliminar
+$lista->mostrar();  // Muestra: A -> C -> NULL
 ?>
